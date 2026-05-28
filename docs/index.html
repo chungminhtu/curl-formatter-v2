@@ -469,6 +469,135 @@
     ::-webkit-scrollbar-thumb { background: var(--border); border-radius: 999px; }
     ::-webkit-scrollbar-thumb:hover { background: var(--text-muted); }
 
+    /* ── Env selector + modal ── */
+    .env-selector {
+      display: flex;
+      align-items: center;
+      gap: 4px;
+      background: var(--bg-input);
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      padding: 2px 4px 2px 8px;
+      font-size: 12px;
+    }
+    .env-selector .label {
+      color: var(--text-muted);
+      font-weight: 500;
+      letter-spacing: 0.02em;
+    }
+    .env-select {
+      border: none;
+      background: transparent;
+      padding: 3px 4px;
+      font-family: var(--ui);
+      font-size: 12px;
+      color: var(--text);
+      outline: none;
+      cursor: pointer;
+      max-width: 160px;
+    }
+    .env-edit-btn {
+      width: 22px; height: 22px;
+      border: none;
+      background: transparent;
+      color: var(--text-soft);
+      border-radius: 4px;
+      cursor: pointer;
+      display: flex; align-items: center; justify-content: center;
+    }
+    .env-edit-btn:hover { background: var(--bg-hover); color: var(--text); }
+
+    .modal-backdrop {
+      position: fixed;
+      inset: 0;
+      background: rgba(17, 24, 39, 0.4);
+      display: none;
+      align-items: center;
+      justify-content: center;
+      z-index: 200;
+    }
+    .modal-backdrop.visible { display: flex; }
+    .modal-card {
+      background: var(--bg-card);
+      border-radius: 12px;
+      box-shadow: var(--shadow-lg);
+      width: 90%;
+      max-width: 700px;
+      max-height: 80vh;
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+    }
+    .modal-head {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 12px 16px;
+      border-bottom: 1px solid var(--border);
+    }
+    .modal-head h3 {
+      font-size: 14px;
+      font-weight: 600;
+    }
+    .modal-body {
+      flex: 1;
+      overflow: auto;
+      padding: 12px 16px;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+    .modal-foot {
+      padding: 8px 16px;
+      border-top: 1px solid var(--border);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 8px;
+    }
+    .env-card {
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      overflow: hidden;
+    }
+    .env-card-head {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      padding: 6px 10px;
+      background: linear-gradient(180deg, #fcfcfd 0%, var(--bg-card) 100%);
+      border-bottom: 1px solid var(--border);
+    }
+    .env-name-input {
+      flex: 1;
+      border: none;
+      background: transparent;
+      font-family: var(--ui);
+      font-size: 13px;
+      font-weight: 600;
+      color: var(--text);
+      outline: none;
+    }
+    .env-vars { padding: 8px 10px; display: flex; flex-direction: column; gap: 4px; }
+    .env-var-row {
+      display: flex;
+      align-items: center;
+      gap: 4px;
+      padding: 4px 6px;
+      background: var(--bg-input);
+      border-radius: 4px;
+    }
+    .env-var-key, .env-var-val {
+      border: none;
+      background: transparent;
+      font-family: var(--mono);
+      font-size: 12px;
+      outline: none;
+      padding: 2px 4px;
+    }
+    .env-var-key { width: 30%; font-weight: 600; color: var(--accent-hover); }
+    .env-var-val { flex: 1; color: var(--text); }
+
     /* ── Mode switcher ── */
     .mode-switch {
       display: inline-flex;
@@ -497,10 +626,112 @@
     }
     .mode-switch button:hover:not(.active) { color: var(--text); }
 
-    /* ── Chain panel ── */
-    .chain-panel { display: none; flex-direction: column; gap: 8px; overflow: auto; min-height: 0; }
-    .chain-panel.active { display: flex; }
+    /* ── Chain / Suite panel ── */
+    .chain-panel, .suite-panel { display: none; flex-direction: column; gap: 8px; overflow: auto; min-height: 0; }
+    .chain-panel.active, .suite-panel.active { display: flex; }
     .single-panel.hidden { display: none !important; }
+
+    .suite-summary {
+      font-family: var(--mono);
+      font-size: 12px;
+      color: var(--text-soft);
+      padding: 0 6px;
+    }
+    .suite-summary .pass { color: var(--success); font-weight: 600; }
+    .suite-summary .fail { color: var(--danger); font-weight: 600; }
+
+    .test-list { display: flex; flex-direction: column; gap: 8px; }
+    .test-card {
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      box-shadow: var(--shadow-sm);
+      overflow: hidden;
+    }
+    .test-head {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      padding: 6px 10px;
+      background: linear-gradient(180deg, #fcfcfd 0%, var(--bg-card) 100%);
+      border-bottom: 1px solid var(--border);
+    }
+    .test-body { padding: 8px 10px; display: flex; flex-direction: column; gap: 6px; }
+    .test-type-switch {
+      display: inline-flex;
+      background: var(--bg-input);
+      border-radius: 4px;
+      padding: 1px;
+    }
+    .test-type-switch button {
+      background: transparent;
+      border: none;
+      padding: 2px 8px;
+      font-family: var(--ui);
+      font-size: 11px;
+      color: var(--text-soft);
+      cursor: pointer;
+      border-radius: 3px;
+    }
+    .test-type-switch button.active { background: var(--bg-card); color: var(--text); }
+
+    .test-chain-select {
+      width: 100%;
+      border: 1px solid var(--border);
+      background: var(--bg-input);
+      padding: 5px 8px;
+      border-radius: 6px;
+      font-family: var(--ui);
+      font-size: 12px;
+      outline: none;
+    }
+
+    .assert-list { display: flex; flex-direction: column; gap: 4px; }
+    .assert-row {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      padding: 4px 8px;
+      background: var(--bg-input);
+      border-radius: 4px;
+    }
+    .assert-row input {
+      flex: 1;
+      border: none;
+      background: transparent;
+      font-family: var(--mono);
+      font-size: 11px;
+      color: var(--text);
+      outline: none;
+    }
+    .assert-row .assert-status {
+      width: 16px; height: 16px;
+      border-radius: 50%;
+      flex-shrink: 0;
+      background: var(--border);
+    }
+    .assert-row .assert-status.pass { background: var(--success); }
+    .assert-row .assert-status.fail { background: var(--danger); }
+    .add-assert {
+      align-self: flex-start;
+      padding: 2px 8px;
+      background: transparent;
+      border: 1px dashed var(--border-strong);
+      color: var(--text-muted);
+      border-radius: 4px;
+      cursor: pointer;
+      font-size: 11px;
+      font-family: var(--ui);
+    }
+    .add-assert:hover { color: var(--text); border-color: var(--accent); }
+    .section-label {
+      font-size: 10px;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+      color: var(--text-muted);
+      margin-top: 2px;
+    }
 
     .chain-toolbar {
       display: flex;
@@ -693,12 +924,22 @@
       <div class="mode-switch">
         <button id="modeSingle" class="active" onclick="setMode('single')">Single</button>
         <button id="modeChain" onclick="setMode('chain')">Chain</button>
+        <button id="modeSuite" onclick="setMode('suite')">Suite</button>
       </div>
       <span class="detected-badge" id="detectedBadge">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
         <span id="detectedLabel"></span>
       </span>
       <span class="spacer"></span>
+      <div class="env-selector">
+        <span class="label">ENV</span>
+        <select class="env-select" onchange="onEnvSelect(this.value)">
+          <option value="">— No env —</option>
+        </select>
+        <button class="env-edit-btn" onclick="openEnvModal()" title="Manage environments">
+          <svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 20h9"/><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"/></svg>
+        </button>
+      </div>
       <span id="envBadge" class="detected-badge" style="background:var(--bg-hover);color:var(--text-soft)">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/></svg>
         <span id="envLabel">Web</span>
@@ -774,6 +1015,41 @@ We auto-detect and format. Then hit Run."></div>
       <div class="step-list" id="stepList"></div>
       <button class="add-step-btn" onclick="addStep()">+ Add step</button>
     </main>
+
+    <main class="content suite-panel" id="suitePanel" style="padding:10px">
+      <div class="chain-toolbar">
+        <input type="text" class="chain-name" id="suiteName" placeholder="Unnamed suite" />
+        <select class="chain-select" id="suiteSelect" onchange="loadSelectedSuite()">
+          <option value="">— Load suite —</option>
+        </select>
+        <button class="btn btn-ghost" onclick="newSuite()" style="min-height:28px;padding:5px 12px;font-size:12px">+ New</button>
+        <button class="btn btn-ghost" onclick="saveCurrentSuite()" style="min-height:28px;padding:5px 12px;font-size:12px">Save</button>
+        <button class="btn btn-ghost" onclick="deleteCurrentSuite()" style="min-height:28px;padding:5px 12px;font-size:12px;color:var(--danger)">Delete</button>
+        <span class="suite-summary" id="suiteSummary"></span>
+        <button class="btn btn-run" onclick="runSuite()" style="min-height:28px;padding:5px 14px;font-size:12px">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="5 3 19 12 5 21 5 3"/></svg>
+          Run Suite
+        </button>
+      </div>
+      <div class="test-list" id="testList"></div>
+      <button class="add-step-btn" onclick="addTest()">+ Add test</button>
+    </main>
+  </div>
+</div>
+
+<div class="modal-backdrop" id="envModal" onclick="if(event.target===this)closeEnvModal()">
+  <div class="modal-card">
+    <div class="modal-head">
+      <h3>Environments</h3>
+      <button class="env-edit-btn" onclick="closeEnvModal()" title="Close">
+        <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+      </button>
+    </div>
+    <div class="modal-body" id="envList"></div>
+    <div class="modal-foot">
+      <span style="font-size:11px;color:var(--text-muted)">Variables resolve via <code>{{var}}</code> in URL / headers / body.</span>
+      <button class="btn btn-primary" onclick="addEnv()" style="min-height:30px;padding:6px 14px;font-size:12px">+ Add env</button>
+    </div>
   </div>
 </div>
 
@@ -1069,8 +1345,9 @@ We auto-detect and format. Then hit Run."></div>
   // Run request (Tauri invoke or fetch fallback)
   // ────────────────────────────────────────────────
   async function runRequest() {
-    const raw = inputEl.value;
-    if (!raw.trim()) { showToast('Paste a curl first', 'warn'); return; }
+    const rawIn = inputEl.value;
+    if (!rawIn.trim()) { showToast('Paste a curl first', 'warn'); return; }
+    const raw = interpolate(rawIn, {});
     const req = parseCurl(raw) || (isHTTPRequest(unwrapJSON(raw)) ? parseCurl(httpToCurl(unwrapJSON(raw))) : null);
     if (!req) { showToast('Could not parse request', 'err'); return; }
 
@@ -1256,12 +1533,18 @@ We auto-detect and format. Then hit Run."></div>
   function setMode(mode) {
     document.getElementById('singlePanel').classList.toggle('hidden', mode !== 'single');
     document.getElementById('chainPanel').classList.toggle('active', mode === 'chain');
+    document.getElementById('suitePanel').classList.toggle('active', mode === 'suite');
     document.getElementById('modeSingle').classList.toggle('active', mode === 'single');
     document.getElementById('modeChain').classList.toggle('active', mode === 'chain');
+    document.getElementById('modeSuite').classList.toggle('active', mode === 'suite');
     if (mode === 'chain') {
       if (!currentChain) newChain();
       else renderSteps();
       renderChainSelect();
+    } else if (mode === 'suite') {
+      if (!currentSuite) newSuite();
+      else renderTests();
+      renderSuiteSelect();
     }
   }
 
@@ -1513,9 +1796,446 @@ We auto-detect and format. Then hit Run."></div>
     showToast('Chain completed');
   }
 
+  // ════════════════════════════════════════════════
+  // ENVIRONMENTS
+  // ════════════════════════════════════════════════
+  const ENV_KEY = 'curl_runner_envs_v1';
+  const ENV_ACTIVE_KEY = 'curl_runner_env_active_v1';
+  let activeEnvId = null;
+
+  function loadEnvs() {
+    try { return JSON.parse(localStorage.getItem(ENV_KEY) || '[]'); } catch { return []; }
+  }
+  function persistEnvs(envs) {
+    try { localStorage.setItem(ENV_KEY, JSON.stringify(envs)); } catch {}
+  }
+  function getActiveEnv() {
+    const id = localStorage.getItem(ENV_ACTIVE_KEY);
+    if (!id) return null;
+    return loadEnvs().find(e => e.id === id) || null;
+  }
+  function setActiveEnv(id) {
+    activeEnvId = id;
+    if (id) localStorage.setItem(ENV_ACTIVE_KEY, id);
+    else localStorage.removeItem(ENV_ACTIVE_KEY);
+    refreshEnvSelectors();
+  }
+
+  function refreshEnvSelectors() {
+    const envs = loadEnvs();
+    document.querySelectorAll('.env-select').forEach(sel => {
+      const cur = sel.value;
+      sel.innerHTML = '<option value="">— No env —</option>' +
+        envs.map(e => `<option value="${escapeAttr(e.id)}"${e.id===activeEnvId?' selected':''}>${escapeHTML(e.name)}</option>`).join('');
+      if (!activeEnvId && cur) sel.value = '';
+    });
+  }
+
+  function onEnvSelect(value) {
+    setActiveEnv(value || null);
+  }
+
+  function openEnvModal() {
+    const modal = document.getElementById('envModal');
+    renderEnvList();
+    modal.classList.add('visible');
+  }
+  function closeEnvModal() {
+    document.getElementById('envModal').classList.remove('visible');
+    refreshEnvSelectors();
+  }
+  function addEnv() {
+    const envs = loadEnvs();
+    envs.push({ id: uid(), name: 'New env', vars: { baseUrl: '' } });
+    persistEnvs(envs);
+    renderEnvList();
+    refreshEnvSelectors();
+  }
+  function removeEnv(id) {
+    const envs = loadEnvs().filter(e => e.id !== id);
+    persistEnvs(envs);
+    if (activeEnvId === id) setActiveEnv(null);
+    renderEnvList();
+    refreshEnvSelectors();
+  }
+  function onEnvNameChange(id, value) {
+    const envs = loadEnvs();
+    const e = envs.find(x => x.id === id);
+    if (e) { e.name = value; persistEnvs(envs); refreshEnvSelectors(); }
+  }
+  function addEnvVar(id) {
+    const envs = loadEnvs();
+    const e = envs.find(x => x.id === id);
+    if (!e) return;
+    e.vars[''] = '';
+    persistEnvs(envs);
+    renderEnvList();
+  }
+  function onEnvVarKeyChange(envId, oldKey, newKey) {
+    const envs = loadEnvs();
+    const e = envs.find(x => x.id === envId);
+    if (!e) return;
+    if (newKey === oldKey) return;
+    if (newKey in e.vars) { showToast('Key exists', 'warn'); renderEnvList(); return; }
+    e.vars[newKey] = e.vars[oldKey];
+    delete e.vars[oldKey];
+    persistEnvs(envs);
+    renderEnvList();
+  }
+  function onEnvVarValueChange(envId, key, value) {
+    const envs = loadEnvs();
+    const e = envs.find(x => x.id === envId);
+    if (!e) return;
+    e.vars[key] = value;
+    persistEnvs(envs);
+  }
+  function deleteEnvVar(envId, key) {
+    const envs = loadEnvs();
+    const e = envs.find(x => x.id === envId);
+    if (!e) return;
+    delete e.vars[key];
+    persistEnvs(envs);
+    renderEnvList();
+  }
+  function renderEnvList() {
+    const host = document.getElementById('envList');
+    const envs = loadEnvs();
+    if (envs.length === 0) {
+      host.innerHTML = '<div style="padding:20px;color:var(--text-muted);text-align:center">No environments yet. Click "+ Add env" to create one.</div>';
+      return;
+    }
+    host.innerHTML = envs.map(e => `
+      <div class="env-card">
+        <div class="env-card-head">
+          <input class="env-name-input" value="${escapeAttr(e.name)}" onchange="onEnvNameChange('${e.id}',this.value)" placeholder="env name"/>
+          <button class="step-action danger" title="Delete env" onclick="if(confirm('Delete env \\'${escapeAttr(e.name)}\\'?'))removeEnv('${e.id}')">
+            <svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg>
+          </button>
+        </div>
+        <div class="env-vars">
+          ${Object.entries(e.vars).map(([k, v]) => `
+            <div class="env-var-row">
+              <input class="env-var-key" value="${escapeAttr(k)}" placeholder="key" onchange="onEnvVarKeyChange('${e.id}','${escapeAttr(k)}',this.value)"/>
+              <input class="env-var-val" value="${escapeAttr(v)}" placeholder="value" onchange="onEnvVarValueChange('${e.id}','${escapeAttr(k)}',this.value)"/>
+              <button class="step-action danger" onclick="deleteEnvVar('${e.id}','${escapeAttr(k)}')">
+                <svg viewBox="0 0 24 24" width="12" height="12" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+              </button>
+            </div>
+          `).join('')}
+          <button class="add-assert" onclick="addEnvVar('${e.id}')">+ Add var</button>
+        </div>
+      </div>
+    `).join('');
+  }
+
+  // ════════════════════════════════════════════════
+  // SUITES
+  // ════════════════════════════════════════════════
+  const SUITE_KEY = 'curl_runner_suites_v1';
+  let currentSuite = null;
+
+  function loadSuites() {
+    try { return JSON.parse(localStorage.getItem(SUITE_KEY) || '[]'); } catch { return []; }
+  }
+  function persistSuites(suites) {
+    try { localStorage.setItem(SUITE_KEY, JSON.stringify(suites)); } catch {}
+  }
+  function newSuite() {
+    currentSuite = {
+      id: uid(),
+      name: 'Untitled suite',
+      tests: [makeTest('Test 1')]
+    };
+    document.getElementById('suiteName').value = currentSuite.name;
+    document.getElementById('suiteSummary').textContent = '';
+    renderTests();
+    renderSuiteSelect();
+  }
+  function makeTest(name) {
+    return {
+      id: uid(),
+      name: name || ('Test ' + (currentSuite ? currentSuite.tests.length + 1 : 1)),
+      type: 'single',
+      curl: '',
+      chainId: '',
+      assertions: ['status === 200']
+    };
+  }
+  function syncCurrentSuite() {
+    if (!currentSuite) return;
+    currentSuite.name = document.getElementById('suiteName').value.trim() || 'Untitled suite';
+  }
+  function saveCurrentSuite() {
+    if (!currentSuite) return;
+    syncCurrentSuite();
+    const suites = loadSuites();
+    const i = suites.findIndex(s => s.id === currentSuite.id);
+    if (i >= 0) suites[i] = currentSuite;
+    else suites.push(currentSuite);
+    persistSuites(suites);
+    renderSuiteSelect();
+    showToast('Suite saved');
+  }
+  function deleteCurrentSuite() {
+    if (!currentSuite) return;
+    const suites = loadSuites().filter(s => s.id !== currentSuite.id);
+    persistSuites(suites);
+    currentSuite = null;
+    newSuite();
+    showToast('Suite deleted');
+  }
+  function loadSelectedSuite() {
+    const id = document.getElementById('suiteSelect').value;
+    if (!id) return;
+    const s = loadSuites().find(x => x.id === id);
+    if (!s) return;
+    currentSuite = JSON.parse(JSON.stringify(s));
+    document.getElementById('suiteName').value = currentSuite.name;
+    document.getElementById('suiteSummary').textContent = '';
+    renderTests();
+  }
+  function renderSuiteSelect() {
+    const sel = document.getElementById('suiteSelect');
+    const suites = loadSuites();
+    sel.innerHTML = '<option value="">— Load suite —</option>' +
+      suites.map(s => `<option value="${escapeAttr(s.id)}"${currentSuite && s.id===currentSuite.id?' selected':''}>${escapeHTML(s.name)}</option>`).join('');
+  }
+
+  function addTest() {
+    if (!currentSuite) newSuite();
+    currentSuite.tests.push(makeTest());
+    renderTests();
+  }
+  function removeTest(testId) {
+    currentSuite.tests = currentSuite.tests.filter(t => t.id !== testId);
+    if (currentSuite.tests.length === 0) currentSuite.tests.push(makeTest('Test 1'));
+    renderTests();
+  }
+  function moveTest(testId, dir) {
+    const arr = currentSuite.tests;
+    const i = arr.findIndex(t => t.id === testId);
+    const j = i + dir;
+    if (i < 0 || j < 0 || j >= arr.length) return;
+    [arr[i], arr[j]] = [arr[j], arr[i]];
+    renderTests();
+  }
+  function onTestFieldChange(testId, field, value) {
+    const t = currentSuite.tests.find(t => t.id === testId);
+    if (!t) return;
+    t[field] = value;
+  }
+  function setTestType(testId, type) {
+    const t = currentSuite.tests.find(t => t.id === testId);
+    if (!t) return;
+    t.type = type;
+    renderTests();
+  }
+  function addAssertion(testId) {
+    const t = currentSuite.tests.find(t => t.id === testId);
+    if (!t) return;
+    t.assertions.push('');
+    renderTests();
+  }
+  function removeAssertion(testId, idx) {
+    const t = currentSuite.tests.find(t => t.id === testId);
+    if (!t) return;
+    t.assertions.splice(idx, 1);
+    renderTests();
+  }
+  function onAssertChange(testId, idx, value) {
+    const t = currentSuite.tests.find(t => t.id === testId);
+    if (!t) return;
+    t.assertions[idx] = value;
+  }
+
+  function renderTests() {
+    const host = document.getElementById('testList');
+    const chains = loadChains();
+    host.innerHTML = currentSuite.tests.map((t, i) => `
+      <div class="test-card" data-id="${escapeAttr(t.id)}">
+        <div class="test-head">
+          <div class="step-num">${i+1}</div>
+          <input class="step-label-input" value="${escapeAttr(t.name)}" onchange="onTestFieldChange('${t.id}','name',this.value)" placeholder="test name"/>
+          <div class="test-type-switch">
+            <button class="${t.type==='single'?'active':''}" onclick="setTestType('${t.id}','single')">Single</button>
+            <button class="${t.type==='chain'?'active':''}" onclick="setTestType('${t.id}','chain')">Chain</button>
+          </div>
+          <span class="step-status idle" id="teststatus-${t.id}">idle</span>
+          <button class="step-action" title="Move up" onclick="moveTest('${t.id}',-1)">
+            <svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="18 15 12 9 6 15"/></svg>
+          </button>
+          <button class="step-action" title="Move down" onclick="moveTest('${t.id}',1)">
+            <svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg>
+          </button>
+          <button class="step-action danger" title="Remove test" onclick="removeTest('${t.id}')">
+            <svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg>
+          </button>
+        </div>
+        <div class="test-body">
+          ${t.type === 'single' ? `
+            <div class="section-label">cURL</div>
+            <div class="step-curl" contenteditable="true" spellcheck="false" oninput="onTestFieldChange('${t.id}','curl',this.innerText)">${escapeHTML(t.curl)}</div>
+          ` : `
+            <div class="section-label">Chain</div>
+            <select class="test-chain-select" onchange="onTestFieldChange('${t.id}','chainId',this.value)">
+              <option value="">— Select chain —</option>
+              ${chains.map(c => `<option value="${escapeAttr(c.id)}"${c.id===t.chainId?' selected':''}>${escapeHTML(c.name)}</option>`).join('')}
+            </select>
+          `}
+          <div class="section-label">Assertions (JS — vars: status, body, headers; chain: ctx.stepLabel)</div>
+          <div class="assert-list">
+            ${t.assertions.map((a, idx) => `
+              <div class="assert-row">
+                <span class="assert-status" id="assertstatus-${t.id}-${idx}"></span>
+                <input value="${escapeAttr(a)}" placeholder="status === 200" onchange="onAssertChange('${t.id}',${idx},this.value)"/>
+                <button class="step-action danger" onclick="removeAssertion('${t.id}',${idx})">
+                  <svg viewBox="0 0 24 24" width="12" height="12" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+                </button>
+              </div>
+            `).join('')}
+            <button class="add-assert" onclick="addAssertion('${t.id}')">+ Add assertion</button>
+          </div>
+        </div>
+        <div class="step-result" id="testresult-${t.id}"><pre><code class="language-json"></code></pre></div>
+      </div>
+    `).join('');
+  }
+
+  function evalAssertion(expr, vars) {
+    if (!expr || !expr.trim()) return { passed: true };
+    try {
+      const keys = Object.keys(vars);
+      const fn = new Function(...keys, 'return (' + expr + ')');
+      return { passed: !!fn(...keys.map(k => vars[k])) };
+    } catch (e) {
+      return { passed: false, error: e.message };
+    }
+  }
+
+  async function runSuite() {
+    if (!currentSuite || currentSuite.tests.length === 0) { showToast('No tests', 'warn'); return; }
+    syncCurrentSuite();
+    let passed = 0, failed = 0;
+    document.getElementById('suiteSummary').innerHTML = 'Running…';
+    for (const test of currentSuite.tests) {
+      setTestStatus(test.id, 'running', 'running…');
+      let ctx = {};
+      let testFailed = false;
+      let resultLines = [];
+      try {
+        if (test.type === 'single') {
+          const interpolated = interpolate(test.curl, ctx);
+          const req = parseCurl(interpolated);
+          if (!req) throw new Error('Could not parse curl');
+          const resp = await doHttp(req);
+          ctx = { status: resp.status, body: resp.body, headers: resp.headers, _: resp };
+          try { ctx.bodyJson = JSON.parse(resp.body); } catch {}
+          resultLines.push('[' + resp.status + '] ' + resp.elapsed_ms + 'ms');
+        } else {
+          if (!test.chainId) throw new Error('No chain selected');
+          const chain = loadChains().find(c => c.id === test.chainId);
+          if (!chain) throw new Error('Chain not found');
+          ctx = await executeChainSteps(chain.steps);
+        }
+      } catch (e) {
+        testFailed = true;
+        ctx.error = (e && e.message) || String(e);
+        resultLines.push('ERROR: ' + ctx.error);
+      }
+      // Evaluate assertions
+      let assertResults = test.assertions.map(a => evalAssertion(a, ctx));
+      assertResults.forEach((r, idx) => {
+        const el = document.getElementById('assertstatus-' + test.id + '-' + idx);
+        if (el) el.className = 'assert-status ' + (r.passed ? 'pass' : 'fail');
+        resultLines.push((r.passed ? '✓' : '✗') + ' ' + test.assertions[idx] + (r.error ? '  // ' + r.error : ''));
+      });
+      const allPassed = !testFailed && assertResults.every(r => r.passed);
+      if (allPassed) {
+        passed++;
+        setTestStatus(test.id, 'ok', 'passed');
+      } else {
+        failed++;
+        setTestStatus(test.id, 'err', 'failed');
+      }
+      // Render result
+      const host = document.getElementById('testresult-' + test.id);
+      if (host) {
+        host.classList.add('visible');
+        const code = host.querySelector('code');
+        code.className = 'language-plain';
+        code.textContent = resultLines.join('\n');
+        try { Prism.highlightElement(code); } catch (e) {}
+      }
+    }
+    document.getElementById('suiteSummary').innerHTML =
+      '<span class="pass">' + passed + ' passed</span> · <span class="' + (failed?'fail':'') + '">' + failed + ' failed</span>';
+  }
+
+  function setTestStatus(testId, cls, txt) {
+    const el = document.getElementById('teststatus-' + testId);
+    if (!el) return;
+    el.className = 'step-status ' + cls;
+    el.textContent = txt;
+  }
+
+  async function executeChainSteps(steps) {
+    const ctx = {};
+    for (const step of steps) {
+      const interpolated = interpolate(step.curl, ctx);
+      const req = parseCurl(interpolated);
+      if (!req) throw new Error('Step "' + step.label + '" could not parse curl');
+      let result;
+      if (step.poll && step.poll.enabled) {
+        let last = null, satisfied = false;
+        for (let i = 0; i < step.poll.maxTries; i++) {
+          last = await doHttp(req);
+          if (evalUntil(step.poll.until, last)) { satisfied = true; break; }
+          if (i < step.poll.maxTries - 1) await sleep(Math.max(100, step.poll.intervalMs));
+        }
+        result = satisfied ? last : { ...(last || {}), error: 'Polling exhausted' };
+      } else {
+        result = await doHttp(req);
+      }
+      ctx[step.label] = result;
+      if (result.error) throw new Error('Step "' + step.label + '" failed: ' + result.error);
+    }
+    return ctx;
+  }
+
+  // ════════════════════════════════════════════════
+  // Update interpolation: env vars first, then ctx
+  // ════════════════════════════════════════════════
+  const _origInterpolate = interpolate;
+  interpolate = function (text, ctx) {
+    const env = getActiveEnv();
+    const envVars = env ? env.vars : {};
+    return text.replace(/\{\{\s*([^}]+?)\s*\}\}/g, (whole, path) => {
+      const parts = path.split('.');
+      // env var lookup (top-level only)
+      if (parts.length === 1 && (parts[0] in envVars)) return envVars[parts[0]];
+      // chain step ctx lookup
+      let v = ctx[parts[0]];
+      if (v === undefined) {
+        if (parts[0] in envVars) return envVars[parts[0]];
+        return '';
+      }
+      for (let i = 1; i < parts.length; i++) {
+        const key = parts[i];
+        if (i === 1 && key === 'body' && typeof v.body === 'string') {
+          try { v = { ...v, body: JSON.parse(v.body) }; } catch {}
+        }
+        v = v?.[key];
+        if (v === undefined || v === null) return '';
+      }
+      return typeof v === 'string' ? v : JSON.stringify(v);
+    });
+  };
+
   // ────────────────────────────────────────────────
   // Init
   // ────────────────────────────────────────────────
+  activeEnvId = localStorage.getItem(ENV_ACTIVE_KEY) || null;
+  refreshEnvSelectors();
   renderHistory();
   inputEl.focus();
 </script>

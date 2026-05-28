@@ -678,6 +678,26 @@
 
       if (!url) return raw;
 
+      // Strip non-essential browser/CORS headers (always noise from copy-as-curl)
+      const NOISE = new Set([
+        'accept-language','accept-encoding','origin','referer','priority',
+        'sec-ch-ua','sec-ch-ua-mobile','sec-ch-ua-platform','sec-ch-ua-arch',
+        'sec-ch-ua-bitness','sec-ch-ua-full-version','sec-ch-ua-full-version-list',
+        'sec-ch-ua-model','sec-ch-ua-platform-version','sec-ch-ua-wow64',
+        'sec-fetch-dest','sec-fetch-mode','sec-fetch-site','sec-fetch-user',
+        'user-agent','dnt','upgrade-insecure-requests','cache-control','pragma'
+      ]);
+      headers = headers.filter(h => {
+        const idx = h.indexOf(':');
+        if (idx < 0) return true;
+        const name = h.slice(0, idx).trim().toLowerCase();
+        const val = h.slice(idx + 1).trim();
+        if (NOISE.has(name)) return false;
+        // Strip wildcard accept
+        if (name === 'accept' && (val === '*/*' || val === '')) return false;
+        return true;
+      });
+
       // Clean up escaped characters in data body (handles JSON-escaped input)
       if (dataStr) {
         let cleaned = dataStr.replace(/\\\\/g, '\\').replace(/\\"/g, '"').replace(/\\'/g, "'");

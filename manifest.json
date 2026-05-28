@@ -1,0 +1,18 @@
+{
+  "name": "cURL Formatter",
+  "short_name": "cURL Fmt",
+  "description": "Paste cURL or escaped strings — auto-detects and formats.",
+  "start_url": "./index.html",
+  "scope": "./",
+  "display": "standalone",
+  "background_color": "#f8f9fb",
+  "theme_color": "#6366f1",
+  "icons": [
+    {
+      "src": "icon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
+    }
+  ]
+}

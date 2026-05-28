@@ -11,6 +11,10 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Lexend+Deca:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <script src="https://cdn.jsdelivr.net/npm/prismjs@1.29.0/components/prism-core.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/prismjs@1.29.0/components/prism-bash.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/prismjs@1.29.0/components/prism-json.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/codejar@4.0.0/dist/codejar.min.js"></script>
   <style>
     @font-face {
       font-family: 'Google Sans Code';
@@ -302,7 +306,7 @@
       min-height: 0;
     }
 
-    textarea, .output-pane {
+    .editor, .output-pane {
       width: 100%;
       height: 100%;
       background: transparent;
@@ -317,10 +321,41 @@
       tab-size: 2;
       white-space: pre-wrap;
       word-break: break-word;
+      overflow: auto;
+      margin: 0;
+      caret-color: var(--accent);
     }
-    textarea::placeholder { color: var(--text-muted); }
-    .output-pane { overflow: auto; }
+    .editor:empty::before {
+      content: attr(data-placeholder);
+      color: var(--text-muted);
+      pointer-events: none;
+    }
     .output-pane.empty { color: var(--text-muted); display: flex; align-items: center; justify-content: center; }
+
+    /* ── Prism custom light theme ── */
+    code[class*="language-"], pre[class*="language-"] {
+      font-family: var(--mono);
+      font-size: 13px;
+      line-height: 1.55;
+      color: var(--text);
+      background: transparent;
+      text-shadow: none;
+      tab-size: 2;
+      hyphens: none;
+      white-space: pre-wrap;
+      word-break: break-word;
+    }
+    .token.comment, .token.prolog, .token.doctype, .token.cdata { color: #8b949e; font-style: italic; }
+    .token.punctuation { color: #6b7280; }
+    .token.property, .token.tag, .token.constant, .token.symbol, .token.deleted { color: #c0392b; }
+    .token.boolean, .token.number { color: #b45309; }
+    .token.selector, .token.attr-name, .token.string, .token.char, .token.builtin, .token.inserted { color: #15803d; }
+    .token.operator, .token.entity, .token.url, .language-css .token.string, .style .token.string, .token.variable { color: #6d28d9; }
+    .token.atrule, .token.attr-value, .token.function, .token.class-name { color: var(--accent-hover); font-weight: 500; }
+    .token.keyword { color: #1d4ed8; font-weight: 500; }
+    .token.regex, .token.important { color: #b91c1c; }
+    .token.important, .token.bold { font-weight: 600; }
+    .token.italic { font-style: italic; }
 
     /* ── Action bar ── */
     .actionbar {
@@ -434,6 +469,197 @@
     ::-webkit-scrollbar-thumb { background: var(--border); border-radius: 999px; }
     ::-webkit-scrollbar-thumb:hover { background: var(--text-muted); }
 
+    /* ── Mode switcher ── */
+    .mode-switch {
+      display: inline-flex;
+      background: var(--bg-input);
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      padding: 2px;
+      gap: 2px;
+    }
+    .mode-switch button {
+      background: transparent;
+      border: none;
+      padding: 4px 12px;
+      font-family: var(--ui);
+      font-size: 12px;
+      font-weight: 500;
+      color: var(--text-soft);
+      cursor: pointer;
+      border-radius: 4px;
+      transition: all var(--t);
+    }
+    .mode-switch button.active {
+      background: var(--bg-card);
+      color: var(--text);
+      box-shadow: 0 1px 2px rgba(0,0,0,0.05);
+    }
+    .mode-switch button:hover:not(.active) { color: var(--text); }
+
+    /* ── Chain panel ── */
+    .chain-panel { display: none; flex-direction: column; gap: 8px; overflow: auto; min-height: 0; }
+    .chain-panel.active { display: flex; }
+    .single-panel.hidden { display: none !important; }
+
+    .chain-toolbar {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      padding: 6px 8px;
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+    }
+    .chain-toolbar input.chain-name {
+      flex: 1;
+      border: none;
+      background: transparent;
+      font-family: var(--ui);
+      font-size: 14px;
+      font-weight: 600;
+      color: var(--text);
+      outline: none;
+      padding: 4px 6px;
+    }
+    .chain-toolbar select.chain-select {
+      border: 1px solid var(--border);
+      background: var(--bg-card);
+      padding: 4px 8px;
+      border-radius: 6px;
+      font-family: var(--ui);
+      font-size: 12px;
+      color: var(--text-soft);
+      outline: none;
+    }
+
+    .step-list { display: flex; flex-direction: column; gap: 8px; }
+
+    .step-card {
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      box-shadow: var(--shadow-sm);
+      overflow: hidden;
+    }
+    .step-head {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      padding: 6px 10px;
+      background: linear-gradient(180deg, #fcfcfd 0%, var(--bg-card) 100%);
+      border-bottom: 1px solid var(--border);
+    }
+    .step-num {
+      width: 22px; height: 22px;
+      background: var(--accent-soft);
+      color: var(--accent-hover);
+      border-radius: 999px;
+      display: flex; align-items: center; justify-content: center;
+      font-family: var(--mono);
+      font-size: 11px;
+      font-weight: 700;
+      flex-shrink: 0;
+    }
+    .step-label-input {
+      flex: 1;
+      border: none;
+      background: transparent;
+      font-family: var(--ui);
+      font-size: 13px;
+      font-weight: 600;
+      color: var(--text);
+      outline: none;
+      padding: 2px 4px;
+    }
+    .step-action {
+      width: 26px; height: 26px;
+      border: none;
+      background: transparent;
+      border-radius: 4px;
+      cursor: pointer;
+      color: var(--text-muted);
+      display: flex; align-items: center; justify-content: center;
+    }
+    .step-action:hover { background: var(--bg-hover); color: var(--text); }
+    .step-action.danger:hover { background: var(--danger-soft); color: var(--danger); }
+    .step-status {
+      font-family: var(--mono);
+      font-size: 11px;
+      padding: 2px 8px;
+      border-radius: 999px;
+    }
+    .step-status.idle { background: var(--bg-hover); color: var(--text-muted); }
+    .step-status.running { background: var(--warn-soft); color: var(--warn); }
+    .step-status.ok { background: var(--success-soft); color: var(--success); }
+    .step-status.err { background: var(--danger-soft); color: var(--danger); }
+
+    .step-body { padding: 8px 10px; display: flex; flex-direction: column; gap: 6px; }
+    .step-curl {
+      min-height: 80px;
+      max-height: 220px;
+      overflow: auto;
+      background: var(--bg-input);
+      border-radius: 6px;
+      padding: 8px 10px;
+    }
+    .step-curl[contenteditable]:empty::before {
+      content: 'curl --location ... (supports {{stepLabel.body.field}} interpolation)';
+      color: var(--text-muted);
+    }
+
+    .step-poll {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      gap: 8px;
+      padding: 6px 8px;
+      background: var(--bg-input);
+      border-radius: 6px;
+      font-size: 12px;
+    }
+    .step-poll input[type=checkbox] { margin: 0; cursor: pointer; }
+    .step-poll label { color: var(--text-soft); display: flex; align-items: center; gap: 4px; }
+    .step-poll input[type=number], .step-poll input[type=text] {
+      border: 1px solid var(--border);
+      background: var(--bg-card);
+      border-radius: 4px;
+      padding: 3px 6px;
+      font-family: var(--mono);
+      font-size: 11px;
+      outline: none;
+      color: var(--text);
+    }
+    .step-poll input[type=number] { width: 70px; }
+    .step-poll input[type=text] { flex: 1; min-width: 200px; }
+
+    .step-result {
+      max-height: 240px;
+      overflow: auto;
+      padding: 8px 10px;
+      background: var(--bg-input);
+      border-top: 1px solid var(--border);
+      font-family: var(--mono);
+      font-size: 12px;
+      display: none;
+    }
+    .step-result.visible { display: block; }
+    .step-result pre { margin: 0; white-space: pre-wrap; word-break: break-word; }
+
+    .add-step-btn {
+      align-self: flex-start;
+      padding: 6px 12px;
+      border: 1px dashed var(--border-strong);
+      background: transparent;
+      color: var(--text-soft);
+      border-radius: 6px;
+      cursor: pointer;
+      font-family: var(--ui);
+      font-size: 13px;
+      transition: all var(--t);
+    }
+    .add-step-btn:hover { background: var(--bg-hover); color: var(--text); border-color: var(--accent); }
+
     /* ── Responsive ── */
     @media (max-width: 900px) {
       .sidebar { width: 48px; }
@@ -464,6 +690,10 @@
     <header class="topbar">
       <div class="logo">&lt;/&gt;</div>
       <h1>cURL Runner</h1>
+      <div class="mode-switch">
+        <button id="modeSingle" class="active" onclick="setMode('single')">Single</button>
+        <button id="modeChain" onclick="setMode('chain')">Chain</button>
+      </div>
       <span class="detected-badge" id="detectedBadge">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
         <span id="detectedLabel"></span>
@@ -475,7 +705,7 @@
       </span>
     </header>
 
-    <main class="content">
+    <main class="content single-panel" id="singlePanel">
       <section class="card">
         <div class="card-head">
           <span class="card-title">
@@ -485,8 +715,9 @@
           <span class="card-meta" id="inputCount">0 chars</span>
         </div>
         <div class="card-body">
-          <textarea id="input" placeholder="Paste cURL, HTTP request, JSON-wrapped curl, or escaped text…
-We auto-detect and format. Then hit Run."  spellcheck="false"></textarea>
+          <div id="input" class="editor language-bash" contenteditable="true" spellcheck="false"
+               data-placeholder="Paste cURL, HTTP request, JSON-wrapped curl, or escaped text…
+We auto-detect and format. Then hit Run."></div>
         </div>
       </section>
 
@@ -521,9 +752,27 @@ We auto-detect and format. Then hit Run."  spellcheck="false"></textarea>
           </span>
         </div>
         <div class="card-body">
-          <div class="output-pane empty" id="output">Run a request to see the response here…</div>
+          <pre class="output-pane empty" id="output"><code class="language-json" id="outputCode">Run a request to see the response here…</code></pre>
         </div>
       </section>
+    </main>
+
+    <main class="content chain-panel" id="chainPanel" style="padding:10px">
+      <div class="chain-toolbar">
+        <input type="text" class="chain-name" id="chainName" placeholder="Unnamed chain" />
+        <select class="chain-select" id="chainSelect" onchange="loadSelectedChain()">
+          <option value="">— Load chain —</option>
+        </select>
+        <button class="btn btn-ghost" onclick="newChain()" style="min-height:28px;padding:5px 12px;font-size:12px">+ New</button>
+        <button class="btn btn-ghost" onclick="saveCurrentChain()" style="min-height:28px;padding:5px 12px;font-size:12px">Save</button>
+        <button class="btn btn-ghost" onclick="deleteCurrentChain()" style="min-height:28px;padding:5px 12px;font-size:12px;color:var(--danger)">Delete</button>
+        <button class="btn btn-run" onclick="runChain()" style="min-height:28px;padding:5px 14px;font-size:12px">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="5 3 19 12 5 21 5 3"/></svg>
+          Run Chain
+        </button>
+      </div>
+      <div class="step-list" id="stepList"></div>
+      <button class="add-step-btn" onclick="addStep()">+ Add step</button>
     </main>
   </div>
 </div>
@@ -546,24 +795,31 @@ We auto-detect and format. Then hit Run."  spellcheck="false"></textarea>
   const inputEl = document.getElementById('input');
   const inputCount = document.getElementById('inputCount');
   const outputEl = document.getElementById('output');
-  const outputCount = document.getElementById('outputCount');
+  const outputCode = document.getElementById('outputCode');
   const outputMeta = document.getElementById('outputMeta');
   const outputTitle = document.getElementById('outputTitle');
 
-  inputEl.addEventListener('input', () => {
-    const n = inputEl.value.length;
-    inputCount.textContent = n.toLocaleString() + ' char' + (n !== 1 ? 's' : '');
+  // ── CodeJar editor (syntax-highlighted contenteditable) ──
+  const jar = CodeJar(inputEl, (el) => {
+    Prism.highlightElement(el);
+  }, { tab: '  ', indentOn: /[\(\[\{]$/ });
+
+  // Backward-compat: inputEl.value getter/setter mirrors textarea API
+  Object.defineProperty(inputEl, 'value', {
+    get() { return jar.toString(); },
+    set(v) { jar.updateCode(v || ''); updateInputCount(); }
   });
 
-  function setOutputCount(text) {
-    const n = (text || '').length;
-    outputCount.textContent = n.toLocaleString() + ' char' + (n !== 1 ? 's' : '');
+  function updateInputCount() {
+    const n = inputEl.value.length;
+    inputCount.textContent = n.toLocaleString() + ' char' + (n !== 1 ? 's' : '');
   }
+  jar.onUpdate(updateInputCount);
 
-  function setOutput(text, kind) {
+  function setOutput(text) {
     outputEl.classList.remove('empty');
-    outputEl.textContent = text;
-    setOutputCount(text);
+    outputCode.textContent = text;
+    try { Prism.highlightElement(outputCode); } catch (e) {}
     outputMeta.innerHTML = '<span id="outputCount">' + (text || '').length.toLocaleString() + ' chars</span>';
   }
 
@@ -636,7 +892,8 @@ We auto-detect and format. Then hit Run."  spellcheck="false"></textarea>
 
   function clearWorkspace() {
     inputEl.value = '';
-    outputEl.textContent = 'Run a request to see the response here…';
+    outputCode.textContent = 'Run a request to see the response here…';
+    outputCode.removeAttribute('data-highlighted');
     outputEl.classList.add('empty');
     inputCount.textContent = '0 chars';
     hideDetected();
@@ -855,18 +1112,22 @@ We auto-detect and format. Then hit Run."  spellcheck="false"></textarea>
     if (resp.error) {
       outputTitle.innerHTML = '<svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg> Response';
       outputMeta.innerHTML = '<span class="status-pill err">ERROR</span> <span>' + (resp.elapsed_ms || 0) + 'ms</span>';
-      outputEl.textContent = resp.error + (IS_TAURI ? '' : '\n\n(Web build — likely CORS. Build the desktop app to run any URL.)');
+      outputCode.className = 'language-plain';
+      outputCode.textContent = resp.error + (IS_TAURI ? '' : '\n\n(Web build — likely CORS. Use the desktop app to run any URL.)');
       return;
     }
     const statusClass = resp.status < 300 ? 'ok' : (resp.status < 400 ? 'warn' : 'err');
     let pretty = resp.body;
-    try { pretty = JSON.stringify(JSON.parse(resp.body), null, 2); } catch (e) {}
+    let isJson = false;
+    try { pretty = JSON.stringify(JSON.parse(resp.body), null, 2); isJson = true; } catch (e) {}
     outputTitle.innerHTML = '<svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg> Response';
     outputMeta.innerHTML =
       '<span class="status-pill ' + statusClass + '">' + resp.status + ' ' + (resp.status_text || '') + '</span>' +
       ' <span>' + resp.elapsed_ms + 'ms</span>' +
       ' <span>' + formatBytes(resp.size_bytes) + '</span>';
-    outputEl.textContent = pretty;
+    outputCode.className = isJson ? 'language-json' : 'language-plain';
+    outputCode.textContent = pretty;
+    try { Prism.highlightElement(outputCode); } catch (e) {}
   }
 
   function formatBytes(n) {
@@ -987,6 +1248,269 @@ We auto-detect and format. Then hit Run."  spellcheck="false"></textarea>
     window.addEventListener('load', () => {
       navigator.serviceWorker.register('sw.js').catch(e => console.warn('SW reg failed:', e));
     });
+  }
+
+  // ────────────────────────────────────────────────
+  // Mode switcher (Single ↔ Chain)
+  // ────────────────────────────────────────────────
+  function setMode(mode) {
+    document.getElementById('singlePanel').classList.toggle('hidden', mode !== 'single');
+    document.getElementById('chainPanel').classList.toggle('active', mode === 'chain');
+    document.getElementById('modeSingle').classList.toggle('active', mode === 'single');
+    document.getElementById('modeChain').classList.toggle('active', mode === 'chain');
+    if (mode === 'chain') {
+      if (!currentChain) newChain();
+      else renderSteps();
+      renderChainSelect();
+    }
+  }
+
+  // ────────────────────────────────────────────────
+  // Chain storage + state
+  // ────────────────────────────────────────────────
+  const CHAIN_KEY = 'curl_runner_chains_v1';
+  let currentChain = null;
+
+  function loadChains() {
+    try { return JSON.parse(localStorage.getItem(CHAIN_KEY) || '[]'); } catch { return []; }
+  }
+  function persistChains(chains) {
+    try { localStorage.setItem(CHAIN_KEY, JSON.stringify(chains)); } catch {}
+  }
+  function uid() { return Date.now().toString(36) + Math.random().toString(36).slice(2, 6); }
+
+  function newChain() {
+    currentChain = {
+      id: uid(),
+      name: 'Untitled chain',
+      steps: [makeStep('step1')]
+    };
+    document.getElementById('chainName').value = currentChain.name;
+    renderSteps();
+    renderChainSelect();
+  }
+  function makeStep(label) {
+    return {
+      id: uid(),
+      label: label || ('step' + (currentChain ? currentChain.steps.length + 1 : 1)),
+      curl: '',
+      poll: { enabled: false, intervalMs: 2000, until: 'status === 200', maxTries: 20 }
+    };
+  }
+  function syncCurrentChain() {
+    if (!currentChain) return;
+    currentChain.name = document.getElementById('chainName').value.trim() || 'Untitled chain';
+  }
+  function saveCurrentChain() {
+    if (!currentChain) return;
+    syncCurrentChain();
+    const chains = loadChains();
+    const i = chains.findIndex(c => c.id === currentChain.id);
+    if (i >= 0) chains[i] = currentChain;
+    else chains.push(currentChain);
+    persistChains(chains);
+    renderChainSelect();
+    showToast('Chain saved');
+  }
+  function deleteCurrentChain() {
+    if (!currentChain) return;
+    const chains = loadChains().filter(c => c.id !== currentChain.id);
+    persistChains(chains);
+    currentChain = null;
+    newChain();
+    showToast('Chain deleted');
+  }
+  function loadSelectedChain() {
+    const id = document.getElementById('chainSelect').value;
+    if (!id) return;
+    const chain = loadChains().find(c => c.id === id);
+    if (!chain) return;
+    currentChain = JSON.parse(JSON.stringify(chain));
+    document.getElementById('chainName').value = currentChain.name;
+    renderSteps();
+  }
+  function renderChainSelect() {
+    const sel = document.getElementById('chainSelect');
+    const chains = loadChains();
+    sel.innerHTML = '<option value="">— Load chain —</option>' +
+      chains.map(c => `<option value="${escapeAttr(c.id)}"${currentChain && c.id===currentChain.id?' selected':''}>${escapeHTML(c.name)}</option>`).join('');
+  }
+
+  // ────────────────────────────────────────────────
+  // Step CRUD + render
+  // ────────────────────────────────────────────────
+  function addStep() {
+    if (!currentChain) newChain();
+    currentChain.steps.push(makeStep());
+    renderSteps();
+  }
+  function removeStep(stepId) {
+    currentChain.steps = currentChain.steps.filter(s => s.id !== stepId);
+    if (currentChain.steps.length === 0) currentChain.steps.push(makeStep('step1'));
+    renderSteps();
+  }
+  function moveStep(stepId, dir) {
+    const i = currentChain.steps.findIndex(s => s.id === stepId);
+    const j = i + dir;
+    if (i < 0 || j < 0 || j >= currentChain.steps.length) return;
+    const arr = currentChain.steps;
+    [arr[i], arr[j]] = [arr[j], arr[i]];
+    renderSteps();
+  }
+  function renderSteps() {
+    const host = document.getElementById('stepList');
+    host.innerHTML = currentChain.steps.map((s, i) => `
+      <div class="step-card" data-id="${escapeAttr(s.id)}">
+        <div class="step-head">
+          <div class="step-num">${i+1}</div>
+          <input class="step-label-input" value="${escapeAttr(s.label)}" onchange="onStepFieldChange('${s.id}','label',this.value)" placeholder="step label"/>
+          <span class="step-status idle" id="status-${s.id}">idle</span>
+          <button class="step-action" title="Move up" onclick="moveStep('${s.id}',-1)">
+            <svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="18 15 12 9 6 15"/></svg>
+          </button>
+          <button class="step-action" title="Move down" onclick="moveStep('${s.id}',1)">
+            <svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg>
+          </button>
+          <button class="step-action danger" title="Remove step" onclick="removeStep('${s.id}')">
+            <svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg>
+          </button>
+        </div>
+        <div class="step-body">
+          <div class="step-curl" contenteditable="true" spellcheck="false" oninput="onStepFieldChange('${s.id}','curl',this.innerText)">${escapeHTML(s.curl)}</div>
+          <div class="step-poll">
+            <label><input type="checkbox" ${s.poll.enabled?'checked':''} onchange="onStepPollChange('${s.id}','enabled',this.checked)"/> Poll</label>
+            <label>every <input type="number" min="100" step="100" value="${s.poll.intervalMs}" onchange="onStepPollChange('${s.id}','intervalMs',parseInt(this.value,10))"/> ms</label>
+            <label>until <input type="text" value="${escapeAttr(s.poll.until)}" placeholder="status === 200" onchange="onStepPollChange('${s.id}','until',this.value)"/></label>
+            <label>max <input type="number" min="1" step="1" value="${s.poll.maxTries}" onchange="onStepPollChange('${s.id}','maxTries',parseInt(this.value,10))"/></label>
+          </div>
+        </div>
+        <div class="step-result" id="result-${s.id}"><pre><code class="language-json"></code></pre></div>
+      </div>
+    `).join('');
+  }
+  function onStepFieldChange(stepId, field, value) {
+    const s = currentChain.steps.find(s => s.id === stepId);
+    if (!s) return;
+    s[field] = value;
+  }
+  function onStepPollChange(stepId, field, value) {
+    const s = currentChain.steps.find(s => s.id === stepId);
+    if (!s) return;
+    s.poll[field] = value;
+  }
+
+  // ────────────────────────────────────────────────
+  // Variable interpolation & polling
+  // ────────────────────────────────────────────────
+  function interpolate(text, ctx) {
+    return text.replace(/\{\{\s*([^}]+?)\s*\}\}/g, (_, path) => {
+      const parts = path.split('.');
+      let v = ctx[parts[0]];
+      if (v === undefined) return '';
+      for (let i = 1; i < parts.length; i++) {
+        const key = parts[i];
+        if (i === 1 && key === 'body' && typeof v.body === 'string') {
+          try { v = { ...v, body: JSON.parse(v.body) }; } catch {}
+        }
+        v = v?.[key];
+        if (v === undefined || v === null) return '';
+      }
+      return typeof v === 'string' ? v : JSON.stringify(v);
+    });
+  }
+  function evalUntil(expr, resp) {
+    if (!expr) return true;
+    try {
+      let body = resp.body;
+      try { body = JSON.parse(body); } catch {}
+      return !!new Function('status', 'body', 'headers', 'return (' + expr + ')')(resp.status, body, resp.headers || {});
+    } catch (e) {
+      console.warn('until eval failed:', e);
+      return false;
+    }
+  }
+  const sleep = ms => new Promise(r => setTimeout(r, ms));
+
+  async function doHttp(req) {
+    if (IS_TAURI) {
+      const invoke =
+        (window.__TAURI__ && window.__TAURI__.core && window.__TAURI__.core.invoke) ||
+        (window.__TAURI__ && window.__TAURI__.invoke) ||
+        (window.__TAURI_INTERNALS__ && window.__TAURI_INTERNALS__.invoke);
+      if (!invoke) throw new Error('Tauri invoke not available');
+      return invoke('http_request', { req });
+    }
+    const t0 = performance.now();
+    const r = await fetch(req.url, { method: req.method, headers: req.headers, body: req.body || undefined });
+    const text = await r.text();
+    const headers = {};
+    r.headers.forEach((v, k) => headers[k] = v);
+    return { status: r.status, status_text: r.statusText, headers, body: text, elapsed_ms: Math.round(performance.now() - t0), size_bytes: text.length };
+  }
+
+  function setStepStatus(stepId, cls, txt) {
+    const el = document.getElementById('status-' + stepId);
+    if (!el) return;
+    el.className = 'step-status ' + cls;
+    el.textContent = txt;
+  }
+  function setStepResult(stepId, resp) {
+    const host = document.getElementById('result-' + stepId);
+    if (!host) return;
+    host.classList.add('visible');
+    const code = host.querySelector('code');
+    let pretty;
+    if (resp.error) {
+      pretty = 'ERROR: ' + resp.error + (resp.tries ? ' (after ' + resp.tries + ' tries)' : '');
+      code.className = 'language-plain';
+    } else {
+      let body = resp.body;
+      try { body = JSON.stringify(JSON.parse(resp.body), null, 2); } catch {}
+      pretty = (resp.status ? '[' + resp.status + '] ' : '') + (resp.elapsed_ms ? resp.elapsed_ms + 'ms\n\n' : '') + body;
+      code.className = 'language-json';
+    }
+    code.textContent = pretty;
+    try { Prism.highlightElement(code); } catch (e) {}
+  }
+
+  async function runChain() {
+    if (!currentChain || currentChain.steps.length === 0) { showToast('No steps', 'warn'); return; }
+    syncCurrentChain();
+    const ctx = {};
+    for (const step of currentChain.steps) {
+      setStepStatus(step.id, 'running', 'running…');
+      let result;
+      try {
+        const interpolated = interpolate(step.curl, ctx);
+        const req = parseCurl(interpolated);
+        if (!req) { result = { error: 'Could not parse curl' }; }
+        else if (step.poll.enabled) {
+          let last = null;
+          let satisfied = false;
+          for (let i = 0; i < step.poll.maxTries; i++) {
+            setStepStatus(step.id, 'running', 'poll ' + (i+1) + '/' + step.poll.maxTries);
+            last = await doHttp(req);
+            ctx[step.label] = last;
+            if (evalUntil(step.poll.until, last)) { satisfied = true; break; }
+            if (i < step.poll.maxTries - 1) await sleep(Math.max(100, step.poll.intervalMs));
+          }
+          result = satisfied ? last : { ...(last || {}), error: 'Polling exhausted', tries: step.poll.maxTries };
+        } else {
+          result = await doHttp(req);
+        }
+      } catch (e) {
+        result = { error: (e && e.message) || String(e) };
+      }
+      ctx[step.label] = result;
+      setStepResult(step.id, result);
+      if (result.error) {
+        setStepStatus(step.id, 'err', 'failed');
+        showToast('Chain stopped at "' + step.label + '"', 'err');
+        return;
+      }
+      setStepStatus(step.id, 'ok', (result.status || 'ok') + '');
+    }
+    showToast('Chain completed');
   }
 
   // ────────────────────────────────────────────────
